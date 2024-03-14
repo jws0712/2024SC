@@ -13,7 +13,7 @@ public class CameraFollow : MonoBehaviour
         child = Player.transform.Find("camera pos").gameObject;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         follow();
     }

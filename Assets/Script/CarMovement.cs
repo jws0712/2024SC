@@ -5,6 +5,7 @@ using System;
 
 public class CarMovement : MonoBehaviour
 {
+    private InputManager IM;
     public WheelCollider[] wheels = new WheelCollider[4];
     public GameObject[] wheelMesh = new GameObject[4];
     public float torque = 200;
@@ -12,18 +13,20 @@ public class CarMovement : MonoBehaviour
 
     private void Start()
     {
-
+        getobject();
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
     }
 
     private void FixedUpdate()
     {
         AnimateWheels();
 
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetAxis("Vertical") != 0)
         {
             for(int i = 0; i < wheels.Length; i++)
             {
-                wheels[i].motorTorque = torque;
+                wheels[i].motorTorque = Input.GetAxis("Vertical") * torque;
             }
         }
         else
@@ -61,5 +64,11 @@ public class CarMovement : MonoBehaviour
                 wheelMesh[i].transform.rotation = wheelRot;
             }
         }
+
+        
+    }
+    private void getobject()
+    {
+        IM = GetComponent<InputManager>();
     }
 }
