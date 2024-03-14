@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public GameObject Player;
+    public GameObject Point;
     public GameObject child;
     public float speed;
     private void Awake()
     {
-        Player = GameObject.FindGameObjectWithTag("Player");
-        child = Player.transform.Find("camera pos").gameObject;
+        Point = GameObject.FindGameObjectWithTag("Point");
+        child = Point.transform.Find("camera pos").gameObject;
     }
 
     private void Update()
@@ -20,7 +20,7 @@ public class CameraFollow : MonoBehaviour
 
     private void follow()
     {
-        gameObject.transform.position = Vector3.Lerp(transform.position, child.transform.position, Time.deltaTime * speed);
-        gameObject.transform.LookAt(Player.gameObject.transform.position);
+        gameObject.transform.position = Vector3.Lerp(transform.position, child.transform.position,Time.deltaTime * speed);
+        gameObject.transform.LookAt(Point.gameObject.transform.position);
     }
 }
