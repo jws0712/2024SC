@@ -19,15 +19,41 @@ public class CarMovement : MonoBehaviour
     private void FixedUpdate()
     {
         AnimateWheels();
+        moveVehivle();
     }
 
     void moveVehivle()
     {
+        if(Input.GetAxis("Vertical") != 0)
+        {
+            for (int i = 0; i < wheels.Length; i++)
+            {
+                wheels[i].motorTorque = (Input.GetAxis("Vertical")) * motortorque;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < wheels.Length; i++)
+            {
+                wheels[i].motorTorque = 0;
+            }
+        }
 
-    }
+        if (Input.GetAxis("Horizontal") != 0)
+        {
+            for (int i = 0; i < wheels.Length - 2; i++)
+            {
+                wheels[i].steerAngle = (Input.GetAxis("Horizontal")) * steeringMax;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < wheels.Length - 2; i++)
+            {
+                wheels[i].steerAngle = 0;
 
-    void steerVehicle()
-    {
+            }
+        }
 
     }
 
