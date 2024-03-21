@@ -5,69 +5,126 @@ using System;
 
 public class CarMovement : MonoBehaviour
 {
-    public WheelCollider[] wheels = new WheelCollider[4];
-    public GameObject[] wheelMesh = new GameObject[4];
-    public float motortorque = 200;
-    public float steeringMax = 4;
-
-    private void Start()
+    public enum Axel
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
+        Front,
+        Rear
     }
 
-    private void FixedUpdate()
+    [Serializable]
+    public struct Wheel
     {
-        AnimateWheels();
-        moveVehivle();
+        public GameObject wheelMesh;
+        public WheelCollider wheelCollider;
+        public GameObject wheelEffectObj;
+        public ParticleSystem Smoke;
+        public Axel axel;
     }
 
-    void moveVehivle()
+    public float maxAccel = 30.0f;
+    public float breakAccel = 50.0f;
+
+    public float turnSens = 1.0f;
+    public float maxStearAngle = 30.0f;
+
+    public Vector3 _centerofMass;
+
+    public List<Wheel> wheels;
+
+    float moveInput;
+    float steerInput;
+
+    private Rigidbody rb;
+
+    void Start()
     {
-        if(Input.GetAxis("Vertical") != 0)
+        rb = GetComponent<Rigidbody>();
+        rb.centerOfMass = _centerofMass;
+    }
+
+    private void Update()
+    {
+        CarInputs();
+        AnimationWheels();
+        WheelEffects();
+    }
+
+    private void LateUpdate()
+    {
+        Move();
+        Stear();
+        Break();
+    }
+
+    void CarInputs()
+    {
+        moveInput = Input.GetAxis("Vertical");
+        steerInput = Input.GetAxis("Horizontal");
+    }
+
+    void Move()
+    {
+        foreach(var wheel in wheels)
         {
-            for (int i = 0; i < wheels.Length; i++)
+            wheel.wheelCollider.motorTorque = moveInput * 600 * maxAccel * Time.deltaTime;
+        }
+    }
+
+    void Stear()
+    {
+        foreach(var wheel in wheels)
+        {
+            if(wheel.axel == Axel.Front)
             {
-                wheels[i].motorTorque = (Input.GetAxis("Vertical")) * motortorque;
+                var _stearAngle = steerInput * turnSens * maxStearAngle;
+                wheel.wheelCollider.steerAngle = Mathf.Lerp(wheel.wheelCollider.steerAngle, _stearAngle, 0.6f);
+            }
+        }
+    }
+
+    void Break()
+    {
+        if (Input.GetKey(KeyCode.Space))
+        {
+            foreach(var wheel in wheels)
+            {
+                wheel.wheelCollider.brakeTorque = 300 * breakAccel * Time.deltaTime;
             }
         }
         else
         {
-            for (int i = 0; i < wheels.Length; i++)
+            foreach (var wheel in wheels)
             {
-                wheels[i].motorTorque = 0;
+                wheel.wheelCollider.brakeTorque = 0;
             }
         }
-
-        if (Input.GetAxis("Horizontal") != 0)
-        {
-            for (int i = 0; i < wheels.Length - 2; i++)
-            {
-                wheels[i].steerAngle = (Input.GetAxis("Horizontal")) * steeringMax;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < wheels.Length - 2; i++)
-            {
-                wheels[i].steerAngle = 0;
-
-            }
-        }
-
     }
 
-    void AnimateWheels()
+    void AnimationWheels()
     {
-        Vector3 wheelPos = Vector3.zero;
-        Quaternion wheelRot = Quaternion.identity;
-
-        for (int i = 0; i < 4; i++)
+        foreach (var wheel in wheels)
         {
-            wheels[i].GetWorldPose(out wheelPos, out wheelRot);
-            wheelMesh[i].transform.position = wheelPos;
-            wheelMesh[i].transform.rotation = wheelRot;
+            Quaternion rot;
+            Vector3 pos;
+            wheel.wheelCollider.GetWorldPose(out pos, out rot);
+            wheel.wheelMesh.transform.position = pos;
+            wheel.wheelMesh.transform.rotation = rot;
         }
     }
 
-}
+    void WheelEffects()
+    {
+        foreach(var wheel in wheels)
+        {
+            if (Input.GetKey(KeyCode.Space) && wheel.axel == Axel.Rear)
+            {
+                wheel.wheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = true;
+                wheel.Smoke.Emit(1);
+            }
+            else
+            {
+                wheel.wheelEffectObj.GetComponentInChildren<TrailRenderer>().emitting = false;
+            }
+        }
+    }
+}   

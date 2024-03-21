@@ -13,7 +13,7 @@ public class CameraFollow : MonoBehaviour
         child = Point.transform.Find("camera pos").gameObject;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         follow();
     }
