@@ -4,36 +4,36 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    public float Speed;
-    public float turnSpeed = 180;
-    public float turnV;
-    private Rigidbody rb;
+    public float m_Speed = 10.0f; //스피드 변수
+    public float m_RotateSpeed = 10.0f; //회전 변수
+
+    public Rigidbody m_Rigid;
 
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        m_Rigid = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        MoveVer();
-        Rotate();
+        MyMove();
+        MyRotate();
+
+    }
+    private void MyMove()
+    {
+        float m_movement = Input.GetAxis("Vertical");
+        Vector3 movement = transform.forward * m_movement * m_Speed * Time.deltaTime;
+        m_Rigid.MovePosition(m_Rigid.position + movement);
     }
 
-    private void MoveVer()
+    private void MyRotate()
     {
-        float movement = Input.GetAxis("Vertical");
-        Vector3 move = transform.right * movement * Speed * Time.deltaTime;
-        rb.MovePosition(rb.position + move);
+        float m_rotate = Input.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime;
+        Vector3 rotate = new Vector3(0, m_rotate, 0);
+        transform.Rotate(rotate);
     }
 
-    private void Rotate()
-    {
-        float turnvalue = Input.GetAxis("Horizontal");
-        float turn = turnV * turnSpeed * Time.deltaTime;
-        Quaternion turnRot = Quaternion.Euler(0f, turn, 0);
-        rb.MoveRotation(turnRot);
-    }
 }
